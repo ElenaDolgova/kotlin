@@ -60,9 +60,8 @@ class FlightsHandler() {
 //        }
         withConnection(true) {
             updateCount +=
-                    it.prepareStatement("UPDATE Flight SET date=date + interval '$interval' WHERE id IN (" +
-                            getFlightIdByData(flightDate).joinToString(separator = ",") +
-                            ")")
+                    it.prepareStatement(
+                            "UPDATE Flight SET date=date + interval '$interval' WHERE date=$flightDate")
                             .executeUpdate()
         }
         return "Updated $updateCount flights"
@@ -70,10 +69,11 @@ class FlightsHandler() {
 
 
     fun handleDeletePlanet(planetId: Int): String {
-        val deleteCount = withConnection(true) { // я не уверена, какая-то очевидная ошибка по сравнению с остальными. false -> true
-          // и тут просто так удалить планету по id не получится.
-          // Потому что на планету ссылаются flight и price, а на flight таблиуа booking.
-          // Вообще не понятно легально ли это делать с точки бизнес логики.
+        val deleteCount = withConnection(true) {
+            // я не уверена, какая-то очевидная ошибка по сравнению с остальными. false -> true
+            // и тут просто так удалить планету по id не получится.
+            // Потому что на планету ссылаются flight и price, а на flight таблиуа booking.
+            // Вообще не понятно легально ли это делать с точки бизнес логики.
             it.prepareStatement("DELETE FROM Planet WHERE id=?").also { stmt ->
                 stmt.setInt(1, planetId)
             }.executeUpdate()
